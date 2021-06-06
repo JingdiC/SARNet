@@ -12,7 +12,7 @@ import sarnet_td3.common.tf_util as U
 from sarnet_td3.common.env_setup import create_env
 from experiments.config_args import parse_args
 from sarnet_td3.common.action_util_td3 import ActionOPTD3
-from sarnet_td3.common.action_util_vpg import ActionOPVPG
+#from sarnet_td3.common.action_util_vpg import ActionOPVPG
 from sarnet_td3.trainer.policy_trainer import load_model
 from sarnet_td3.common.buffer_util_td3 import BufferOp
 import sarnet_td3.common.np_utils as nutil
@@ -63,12 +63,8 @@ def train():
     # Get GPU Trainer Threads
     gpu_threads_train = get_gputhreads(trainers, args, buffer_op, num_env, num_agents, num_adversaries)
     # Initialize action/train calls
-    if args.policy_grad == "reinforce":
-        train_act_op = ActionOPVPG(trainers, args, num_env, num_agents, cpu_proc_envs, gpu_threads_train, is_train)
-    elif args.policy_grad == "maddpg":
-        train_act_op = ActionOPTD3(trainers, args, num_env, num_agents, cpu_proc_envs, gpu_threads_train, is_train)
-    else:
-        raise NotImplementedError
+    train_act_op = ActionOPTD3(trainers, args, num_env, num_agents, cpu_proc_envs, gpu_threads_train, is_train)
+
     U.initialize()
 
     # Load previous results, if necessary

@@ -4,10 +4,10 @@ import tensorflow as tf
 from sarnet_td3.models.critic_model import mlp_model, rnn_model, maac_rnn_model
 from sarnet_td3.models.comm_policy import CommActorNetwork
 from sarnet_td3.models.comm_policy_td3 import CommActorNetworkTD3
-from sarnet_td3.models.comm_policy_vpg import CommActorNetworkVPG
+#from sarnet_td3.models.comm_policy_vpg import CommActorNetworkVPG
 
 from sarnet_td3.trainer.comm_trainer_td3 import CommAgentTrainerTD3, create_placeholder_td3
-from sarnet_td3.trainer.comm_trainer_reinforce import CommAgentTrainerVPG, create_placeholder_vpg
+#from sarnet_td3.trainer.comm_trainer_reinforce import CommAgentTrainerVPG, create_placeholder_vpg
 
 
 def get_trainers_td3(num_agents, obs_shape_n, action_space, args, num_env, is_train=False):
