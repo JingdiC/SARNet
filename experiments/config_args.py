@@ -68,6 +68,7 @@ def parse_args():
     parser.add_argument("--polyak", type=float, default=5e-2, help="cumulative polyak for all similar agents")
     parser.add_argument("--policy-reg", action="store_true", default=True, help="Regularize the p_loss")
     parser.add_argument("--gamma", type=float, default=0.96, help="discount factor")
+    parser.add_argument("--number-group", type=float, default=6, help="number of group")
 
     # Network parameters
     parser.add_argument("--pre-encoder", action="store_true", default=True, help="encode obs  with MLP before parsing through gru")
@@ -132,7 +133,7 @@ def parse_args():
     parser.add_argument("---feedMemObsAction", action="store_true", default=True, help="Feed memory and observation for action projection")
 
     # Checkpointing
-    parser.add_argument("--exp-name", type=str, default="SAR_3agents_bw0.0001", help="name of the experiment")
+    parser.add_argument("--exp-name", type=str, default="SAR_3agents_test", help="name of the experiment")
     parser.add_argument("--exp-itr", type=str, default="itr", help="name of the experiment")
     parser.add_argument("--policy-file", type=str, default="5000000", help="name of policy itr to use for benchmark")
     parser.add_argument("--save-dir", type=str, default="/policy/", help="directory in which training state and model should be saved")

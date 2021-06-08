@@ -13,7 +13,7 @@ from sarnet_td3.common.env_setup import create_env
 from experiments.config_args import parse_args
 from sarnet_td3.common.action_util_td3 import ActionOPTD3
 #from sarnet_td3.common.action_util_vpg import ActionOPVPG
-from sarnet_td3.trainer.policy_trainer import load_model
+from sarnet_td3.trainer.policy_trainer import load_model, load_group_model
 from sarnet_td3.common.buffer_util_td3 import BufferOp
 import sarnet_td3.common.np_utils as nutil
 import sarnet_td3.common.bench_util as wutil
@@ -48,7 +48,7 @@ def train():
     Create the number of environments, num_env == 1 for benchmark and display
     ---------------------------------------------------------------------------
     """
-    cpu_proc_envs, num_env, num_agents, num_adversaries, obs_shape_n, action_space = create_env(args)
+    cpu_proc_envs, num_env, num_agents, num_adversaries, obs_shape_n, action_space, attention_shape_n, group_shape_n, group_space_output, group_attention_output = create_env(args)
     args.num_gpu_threads = int(num_agents + 1)
 
     """" 
@@ -58,6 +58,10 @@ def train():
     """
 
     trainers, sess = load_model(num_agents, obs_shape_n, action_space, args, num_env, is_train)
+    group_trainers = []
+
+    #for i in range(0, args.number_group):
+    #    g_trainers, sess = load_group_model(num_agents, group_shape_n)
     # Initialize a replay buffer
     buffer_op = BufferOp(args, num_agents)
     # Get GPU Trainer Threads
@@ -102,6 +106,31 @@ def train():
         """
         # GPU: Queue and wait for all actions
         # Stores actions in self.action_n_t
+        obs_n = train_act_op.obs_n_t[0]
+
+        group_obs = []
+        for obs in obs_n:
+            group1 = []
+            group2 = []
+            group3 = []
+            group4 = []
+            group5 = []
+            group6 = []
+            group1.append([obs[0], obs[2], 0, 0, 0])
+            group2.append([obs[1], obs[3], 0, 0, 0])
+            group3.append([obs[14], obs[16], obs[18], obs[20], 0])  # obs[18], obs[20]
+            group4.append([obs[15], obs[17], obs[19], obs[21], 0])  # obs[19], obs[21]
+            group5.append([obs[4], obs[6], obs[8], obs[10], obs[12]])
+            group6.append([obs[5], obs[7], obs[9], obs[11], obs[13]])
+
+            group_obs.append(np.squeeze(np.asarray(group1)))
+            group_obs.append(np.squeeze(np.asarray(group2)))
+            group_obs.append(np.squeeze(np.asarray(group3)))
+            group_obs.append(np.squeeze(np.asarray(group4)))
+            group_obs.append(np.squeeze(np.asarray(group5)))
+            group_obs.append(np.squeeze(np.asarray(group6)))
+
+
         train_act_op.queue_recv_actor()
         # GPU: Queue for all critic states
         if args.policy_grad == "maddpg":

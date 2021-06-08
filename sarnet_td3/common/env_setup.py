@@ -16,6 +16,10 @@ def create_env(args):
     obs_shape_n = train_envs.get_obs_shape()  # Get observation shape of the environment
     action_space = train_envs.get_action_space()  # action space of the environment
     num_agents = train_envs.get_num_agents()  # Get number of agents in the environment
+    attention_shape_n = train_envs.get_attention_shape()
+    group_shape_n = train_envs.get_group_shape()
+    group_attention_output = train_envs.get_group_attention_output()
+    group_space_output = train_envs.get_group_space_output()
     num_adversaries = min(num_agents, args.num_adversaries)
     print("Scenario: ", args.scenario)
     print("# Agents: ", num_agents, " Num_adv: ", num_adversaries)
@@ -23,7 +27,7 @@ def create_env(args):
     print('Using good policy {} and adv policy {}'.format(args.good_test, args.adv_test))
     print('Random Seed {}'.format(args.random_seed))
 
-    return train_envs, num_env, num_agents, num_adversaries, obs_shape_n, action_space
+    return train_envs, num_env, num_agents, num_adversaries, obs_shape_n, action_space, attention_shape_n, group_shape_n, group_space_output, group_attention_output
 
 
 def make_mpe_env(args):
