@@ -49,18 +49,9 @@ def mpe_pipe_worker(pipe, args, env_idx):
             else:
                 pipe.send(args.num_adversaries)
 
-        elif action == 'get_attention_shape':
-            if args.env_type == "mpe":
-                pipe.send([env.group_attention_input[i].shape for i in range(env.n)])
-            else:
-                pipe.send(args.num_adversaries)
-
         elif action == 'get_group_shape':
             if args.env_type == "mpe":
-                group_shape_n = []
-                for i in range(env.n):
-                    current_shape_n = env.group_space_input[i][0].shape
-                    group_shape_n.append(current_shape_n)
+                group_shape_n = [env.observation_space[i].shape for i in range(env.n)]
                 pipe.send(group_shape_n)
             else:
                 pipe.send(args.num_adversaries)
@@ -68,12 +59,6 @@ def mpe_pipe_worker(pipe, args, env_idx):
         elif action == 'get_group_space_output':
             if args.env_type == "mpe":
                 pipe.send(env.group_space_output)
-            else:
-                pipe.send(args.num_adversaries)
-
-        elif action == 'get_group_attention_output':
-            if args.env_type == "mpe":
-                pipe.send(env.group_attention_output)
             else:
                 pipe.send(args.num_adversaries)
 
@@ -108,12 +93,6 @@ class MultiEnv(object):
             if self.arglist.same_env:
                 return pipe.recv()
 
-    def get_attention_shape(self):
-        for pipe in self.parent_pipes:
-            pipe.send('get_attention_shape')
-            if self.arglist.same_env:
-                return pipe.recv()
-
     def get_group_shape(self):
         for pipe in self.parent_pipes:
             pipe.send('get_group_shape')
@@ -123,12 +102,6 @@ class MultiEnv(object):
     def get_group_space_output(self):
         for pipe in self.parent_pipes:
             pipe.send('get_group_space_output')
-            if self.arglist.same_env:
-                return pipe.recv()
-
-    def get_group_attention_output(self):
-        for pipe in self.parent_pipes:
-            pipe.send('get_group_attention_output')
             if self.arglist.same_env:
                 return pipe.recv()
 

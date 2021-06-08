@@ -11,7 +11,7 @@ class MultiAgentEnv(gym.Env):
         'render.modes' : ['human', 'rgb_array']
     }
 
-    def __init__(self, world, reset_callback=None, reward_callback=None,
+    def __init__(self, world, args, reset_callback=None, reward_callback=None,
                  observation_callback=None, info_callback=None,
                  done_callback=None, shared_viewer=False):
 
@@ -42,14 +42,12 @@ class MultiAgentEnv(gym.Env):
         self.observation_space = []
         self.group_space_input = []
         self.group_space_output = []
-        self.group_attention_input = []
-        self.group_attention_output = []
+
         for agent in self.agents:
             total_action_space = []
             total_comm_action_space = []
             total_group_space = []
-            total_attention_space = []
-            total_attention_action_space = []
+
             # TODO : becuase the enviroment do use slient, need to change the input type.
             # physical action space
             if self.discrete_action_space:
@@ -67,7 +65,7 @@ class MultiAgentEnv(gym.Env):
             if not agent.silent:
                 total_comm_action_space.append(c_action_space)
             # total physical action space
-            if len(total_action_space) > 0 and len(total_comm_action_space) > 0:
+            if len(total_action_space) > 1:
                 # all action spaces are discrete, so simplify to MultiDiscrete action space
                 if all([isinstance(act_space, spaces.Discrete) for act_space in total_action_space]):
                     act_space = MultiDiscrete([[0, act_space.n - 1] for act_space in total_action_space])
@@ -77,46 +75,21 @@ class MultiAgentEnv(gym.Env):
             else:
                 self.action_space.append(total_action_space[0])
 
-            # total comm action space
-            if len(total_action_space) > 0 and len(total_comm_action_space) > 0:
-                # all action spaces are discrete, so simplify to MultiDiscrete action space
-                if all([isinstance(act_space, spaces.Discrete) for act_space in total_comm_action_space]):
-                    act_space = MultiDiscrete([[0, act_space.n - 1] for act_space in total_comm_action_space])
-                else:
-                    act_space = spaces.Tuple(total_comm_action_space)
-                self.comm_action_space.append(act_space)
-            else:
-                self.comm_action_space.append(total_comm_action_space[0])
             # observation space
             obs_dim = len(observation_callback(agent, self.world))
             self.observation_space.append(spaces.Box(low=-np.inf, high=+np.inf, shape=(obs_dim,), dtype=np.float32))
 
-            for i in range(0, 6):
-                total_group_space.append(spaces.Box(low=-np.inf, high=+np.inf, shape=(5,), dtype=np.float32))
-
-            self.group_space_input.append(total_group_space)
+            #group input space
+            self.group_space_input.append(spaces.Box(low=-np.inf, high=+np.inf, shape=(args.group_input_size,), dtype=np.float32))
 
             if self.discrete_action_space:
-                g_action_space = spaces.Discrete(2)
+                g_action_space = spaces.Discrete(args.group_output_size)
             else:
-                g_action_space = spaces.Box(low=0.0, high=1.0, shape=(2,), dtype=np.float32)
+                g_action_space = spaces.Box(low=0.0, high=1.0, shape=(args.group_output_size,), dtype=np.float32)
 
-            total_g_action_space = []
-            total_g_action_space.append(g_action_space)
-
-            if len(total_g_action_space) > 0:
-                # all action spaces are discrete, so simplify to MultiDiscrete action space
-                if all([isinstance(act_space, spaces.Discrete) for act_space in total_g_action_space]):
-                    act_space = MultiDiscrete([[0, act_space.n - 1] for act_space in total_g_action_space])
-                else:
-                    act_space = spaces.Tuple(total_comm_action_space)
-                self.group_space_output.append(act_space)
-            else:
-                self.group_space_output.append(total_comm_action_space[0])
+            self.group_space_output.append(g_action_space)
 
             agent.action.c = np.zeros(self.world.dim_c)
-            self.group_attention_input.append(spaces.Box(low=-np.inf, high=+np.inf, shape=(12,), dtype=np.float32))
-            self.group_attention_output.append(MultiDiscrete([[0, 5]]))
 
         # rendering
         self.shared_viewer = shared_viewer
