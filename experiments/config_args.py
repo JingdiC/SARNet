@@ -132,7 +132,7 @@ def parse_args():
     parser.add_argument("---feedMemObsAction", action="store_true", default=True, help="Feed memory and observation for action projection")
 
     # Checkpointing
-    parser.add_argument("--exp-name", type=str, default="SAR_3agents_bw0.0001", help="name of the experiment")
+    parser.add_argument("--exp-name", type=str, default="SAR_test", help="name of the experiment")
     parser.add_argument("--exp-itr", type=str, default="itr", help="name of the experiment")
     parser.add_argument("--policy-file", type=str, default="5000000", help="name of policy itr to use for benchmark")
     parser.add_argument("--save-dir", type=str, default="/policy/", help="directory in which training state and model should be saved")
