@@ -61,8 +61,7 @@ def train():
     group_trainers = []
 
     for i in range(0, args.number_group):
-        # TODO might need to add an TD_group trainer
-        g_trainers, sess = load_group_model(num_agents, i, group_shape_n, group_space_output, args, num_env, is_train)
+        g_trainers = load_group_model(num_agents, i, group_shape_n, group_space_output, args, num_env, is_train)
         group_trainers.append(g_trainers)
 
     # Initialize a replay buffer

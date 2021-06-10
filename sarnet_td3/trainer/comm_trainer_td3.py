@@ -496,7 +496,7 @@ class GroupCommAgentTrainerTD3(MAgentTrainer):
             self.optimizer = tf.compat.v1.train.AdamOptimizer(learning_rate=self.args.actor_lr)
 
         # Setup weight sharing for first initialization of adv/good policy
-        if not(self.p_index == 0 or self.p_index == self.num_adv): self.reuse = True
+#        if not(self.p_index == 0 or self.p_index == self.num_adv): self.reuse = True
         # Prepare indexing parameters
         if self.name == "good_agent":
             self.comm_type = self.args.good_test
