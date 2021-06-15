@@ -135,6 +135,7 @@ def parse_args():
     parser.add_argument("---feedMemObsAction", action="store_true", default=True, help="Feed memory and observation for action projection")
 
     # Checkpointing
+    parser.add_argument("--group-exp-name", type=str, default="group_SAR_withoutVPG_test", help="name of the group")
     parser.add_argument("--exp-name", type=str, default="SAR_withoutVPG_test", help="name of the experiment")
     parser.add_argument("--exp-itr", type=str, default="itr", help="name of the experiment")
     parser.add_argument("--policy-file", type=str, default="5000000", help="name of policy itr to use for benchmark")

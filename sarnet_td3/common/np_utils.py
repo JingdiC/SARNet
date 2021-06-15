@@ -95,3 +95,40 @@ def create_dir(args):
 
     return exp_name, exp_itr, tensorboard_dir, data_file
 
+def create_group_dir(args, i):
+    # Create exp type directory
+    exp_name = args.group_exp_name
+    exp_dir = os.path.join('./exp_data', exp_name)
+    if not os.path.exists(exp_dir):
+        os.makedirs(exp_dir)
+
+    # Create
+    if not (args.benchmark or args.display or args.restore):
+        exp_itr = None
+        for file in sorted(os.listdir(exp_dir)):
+            exp_itr = file
+        if exp_itr and not args.restore:
+            exp_itr = '0'
+        else:
+            exp_itr = '0'
+
+        os.mkdir(os.path.join('./exp_data/' + exp_name + '/' + str(i)))
+    else:
+        exp_itr = args.exp_itr
+
+    tensorboard_dir = None
+
+    data_file = os.path.join('./exp_data', exp_name, exp_itr, "values.txt")
+
+    if not (args.benchmark or args.display or args.restore):
+        # Save configuration files
+        with open('./exp_data/' + exp_name + '/' + exp_itr + '/args.txt', 'w') as fp:
+            json.dump(args.__dict__, fp, indent=2)
+
+        # Create experiment folder
+        tensorboard_dir = os.path.join('./exp_data', exp_name, exp_itr, 'tensorboard')
+        if not os.path.exists(tensorboard_dir):
+            os.mkdir(tensorboard_dir)
+
+    return exp_name, exp_itr, tensorboard_dir, data_file
+

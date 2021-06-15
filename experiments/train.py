@@ -11,7 +11,7 @@ import ic3net_envs
 import sarnet_td3.common.tf_util as U
 from sarnet_td3.common.env_setup import create_env
 from experiments.config_args import parse_args
-from sarnet_td3.common.action_util_td3 import ActionOPTD3
+from sarnet_td3.common.action_util_td3 import ActionOPTD3, GroupActionOPTD3
 #from sarnet_td3.common.action_util_vpg import ActionOPVPG
 from sarnet_td3.trainer.policy_trainer import load_model, load_group_model
 from sarnet_td3.common.buffer_util_td3 import BufferOp
@@ -65,11 +65,28 @@ def train():
         group_trainers.append(g_trainers)
 
     # Initialize a replay buffer
+    # TODO need to add replayBuffer for group trainer
     buffer_op = BufferOp(args, num_agents)
+    group_buffer_op = []
+    for i in range(0, args.number_group):
+        g_buffer_op = BufferOp(args, num_agents)
+        group_buffer_op.append(g_buffer_op)
+
     # Get GPU Trainer Threads
     gpu_threads_train = get_gputhreads(trainers, args, buffer_op, num_env, num_agents, num_adversaries)
+
+    group_gpu_threads_train = []
+    for i in range(0, args.number_group):
+        g_gpu_threads_train = get_gputhreads(group_trainers[i], args, group_buffer_op[i], num_env, num_agents, num_adversaries)
+        group_gpu_threads_train.append(g_gpu_threads_train)
+
     # Initialize action/train calls
     train_act_op = ActionOPTD3(trainers, args, num_env, num_agents, cpu_proc_envs, gpu_threads_train, is_train)
+
+    group_train_act_op = []
+    for i in range(0, args.number_group):
+        g_train_act_op = GroupActionOPTD3(group_trainers[i], args, num_env, num_agents, cpu_proc_envs, group_gpu_threads_train[i], is_train, i)
+        group_train_act_op.append(g_train_act_op)
 
     U.initialize()
 
@@ -94,6 +111,10 @@ def train():
 
     # CPU: Reset all environments and initialize all hidden states
     train_act_op.reset_states()
+    for i in range(0, args.number_group):
+        group_train_act_op[i].reset_states()
+
+    # TODO reset the status need to seperate the obs_n and assign to each of g_train_act_op based on the logic of queue_recv_actor
     start_time = time.time()
     while True:
         """ 
@@ -125,7 +146,6 @@ def train():
             group_obs.append(np.squeeze(np.asarray(group2)))
             group_obs.append(np.squeeze(np.asarray(group3)))
             group_obs.append(np.squeeze(np.asarray(group4)))
-
 
         train_act_op.queue_recv_actor()
         # GPU: Queue for all critic states
