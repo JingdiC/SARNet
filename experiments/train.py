@@ -21,6 +21,21 @@ from sarnet_td3.common.gpu_multithread import get_gputhreads, close_gputhreads
 
 warnings.simplefilter(action='ignore', category=FutureWarning)
 
+
+def reset_group(obs_n_t, group_train_act_op):
+
+    for current_obs in obs_n_t[0]:
+        for i, action in enumerate(group_train_act_op):
+            if i == 0:
+                action.obs_n_t.append(np.squeeze(np.asarray([current_obs[0], current_obs[2], 0, 0, 0])))
+            elif i == 1:
+                action.obs_n_t.append(np.squeeze(np.asarray([current_obs[1], current_obs[3], 0, 0, 0])))
+            elif i == 2:
+                action.obs_n_t.append(np.squeeze(np.asarray([current_obs[4], current_obs[6], current_obs[8], current_obs[10], current_obs[12]])))
+            elif i == 3:
+                action.obs_n_t.append(np.squeeze(np.asarray([current_obs[5], current_obs[7], current_obs[9], current_obs[11], current_obs[13]])))
+
+
 def train():
     # Setup random seeds and args parameters
     args = parse_args()
@@ -112,7 +127,9 @@ def train():
     # CPU: Reset all environments and initialize all hidden states
     train_act_op.reset_states()
     for i in range(0, args.number_group):
-        group_train_act_op[i].reset_states()
+        group_train_act_op[i].reset_states(i)
+        reset_group(train_act_op.obs_n_t, group_train_act_op)
+
 
     # TODO reset the status need to seperate the obs_n and assign to each of g_train_act_op based on the logic of queue_recv_actor
     start_time = time.time()

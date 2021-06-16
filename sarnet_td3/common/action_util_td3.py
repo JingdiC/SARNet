@@ -64,7 +64,7 @@ class ActionOPTD3(object):
         self.attn_benchmark = []
         self.attn_obs_benchmark = []
         self.mem_benchmark = []
-
+        self.obs_n_t = []
     """
     -----------------------------------------------------------------------
     Action Prediction and Critic Updates
@@ -450,6 +450,7 @@ class GroupActionOPTD3(object):
     def update_states(self):
         if self.terminal:
             self.episode_step = 0
+            # TODO might need to add i
             self.reset_states()
         else:
             self.obs_n_t = self.obs_n_t1
@@ -526,7 +527,7 @@ class GroupActionOPTD3(object):
         self.episode_step += 1
         self.train_step += 1
 
-    def reset_states(self):
+    def reset_states(self, i):
         # print("resetting state \n")
         # Actor Hidden States
         self.h_n_t = self.new_h_n_init
@@ -537,7 +538,6 @@ class GroupActionOPTD3(object):
         # Communication
         self.memory_n_t = self.new_memory_n_init
         # Environment
-        self.obs_n_t = self.env_proc.reset()
 
     def display_env(self):
         if self.args.display:
