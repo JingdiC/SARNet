@@ -35,6 +35,27 @@ def reset_group(obs_n_t, group_train_act_op):
             elif i == 3:
                 action.obs_n_t.append(np.squeeze(np.asarray([current_obs[5], current_obs[7], current_obs[9], current_obs[11], current_obs[13]])))
 
+def assign_group_obs(obs_n_t, group_train_act_op):
+
+    for i, action in enumerate(group_train_act_op):
+        for current_obs in obs_n_t[0]:
+            if i == 0:
+                action.obs_n_t.append(np.squeeze(np.asarray([current_obs[0], current_obs[2], 0, 0, 0])))
+            elif i == 1:
+                action.obs_n_t.append(np.squeeze(np.asarray([current_obs[1], current_obs[3], 0, 0, 0])))
+            elif i == 2:
+                action.obs_n_t.append(np.squeeze(np.asarray([current_obs[4], current_obs[6], current_obs[8], current_obs[10], current_obs[12]])))
+            elif i == 3:
+                action.obs_n_t.append(np.squeeze(np.asarray([current_obs[5], current_obs[7], current_obs[9], current_obs[11], current_obs[13]])))
+
+def get_env_act(group_train_act_op, train_act_op, args):
+    obs_n_t1 = train_act_op.obs_n_t
+    rew_n_t = train_act_op.rew_n_t
+    done_n_t = train_act_op.done_n_t
+    info_n_t = train_act_op.info_n_t
+
+    assign_group_obs(obs_n_t1, group_train_act_op)
+
 
 def train():
     # Setup random seeds and args parameters
@@ -128,7 +149,8 @@ def train():
     train_act_op.reset_states()
     for i in range(0, args.number_group):
         group_train_act_op[i].reset_states(i)
-        reset_group(train_act_op.obs_n_t, group_train_act_op)
+
+    reset_group(train_act_op.obs_n_t, group_train_act_op)
 
 
     # TODO reset the status need to seperate the obs_n and assign to each of g_train_act_op based on the logic of queue_recv_actor
@@ -146,28 +168,17 @@ def train():
         """
         # GPU: Queue and wait for all actions
         # Stores actions in self.action_n_t
-        obs_n = train_act_op.obs_n_t[0]
-
-        group_obs = []
-        for obs in obs_n:
-            group1 = []
-            group2 = []
-            group3 = []
-            group4 = []
-            group1.append([obs[0], obs[2], 0, 0, 0])
-            group2.append([obs[1], obs[3], 0, 0, 0])
-            group3.append([obs[4], obs[6], obs[8], obs[10], obs[12]])
-            group4.append([obs[5], obs[7], obs[9], obs[11], obs[13]])
-
-            group_obs.append(np.squeeze(np.asarray(group1)))
-            group_obs.append(np.squeeze(np.asarray(group2)))
-            group_obs.append(np.squeeze(np.asarray(group3)))
-            group_obs.append(np.squeeze(np.asarray(group4)))
 
         train_act_op.queue_recv_actor()
+
+        for i in range(0, args.number_group):
+            group_train_act_op[i].queue_recv_actor()
+
         # GPU: Queue for all critic states
         if args.policy_grad == "maddpg":
             train_act_op.queue_critic()
+            for i in range(0, args.number_group):
+                group_train_act_op[i].queue_critic()
         # Stores new observation, reward, done and benchmark
         train_act_op.get_env_act()
         if args.display:

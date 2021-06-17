@@ -377,6 +377,7 @@ class GroupActionOPTD3(object):
         self.attn_benchmark = []
         self.attn_obs_benchmark = []
         self.mem_benchmark = []
+        self.obs_n_t = []
 
     """
     -----------------------------------------------------------------------
