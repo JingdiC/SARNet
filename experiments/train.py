@@ -181,6 +181,7 @@ def train():
                 group_train_act_op[i].queue_critic()
         # Stores new observation, reward, done and benchmark
         train_act_op.get_env_act()
+        # TODO main function's query and other function's key and value
         if args.display:
             train_act_op.display_env()
         # Get all critic states and store in self.q1/2_h_n_t1 for next step for ddpg updates

@@ -70,7 +70,7 @@ def parse_args():
     parser.add_argument("--gamma", type=float, default=0.96, help="discount factor")
     parser.add_argument("--number-group", type=float, default=4, help="number of group")
     parser.add_argument("--group-input-size", type=float, default=5, help="number of group")
-    parser.add_argument("--group-output-size", type=float, default=5, help="number of group")
+    parser.add_argument("--group-output-size", type=float, default=2, help="number of group")
 
     # Network parameters
     parser.add_argument("--pre-encoder", action="store_true", default=True, help="encode obs  with MLP before parsing through gru")
