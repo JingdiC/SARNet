@@ -393,7 +393,7 @@ class GroupActionOPTD3(object):
         self.attn_n_t = [None] * len(self.trainers)
 
         """ Actor Output """
-        p_data = (self.obs_n_t, self.h_n_t, self.c_n_t, self.memory_n_t, self.q1_h_n_t, self.is_train)
+        p_data = ([self.obs_n_t], self.h_n_t, self.c_n_t, self.memory_n_t, self.q1_h_n_t, self.is_train)
         for p_index in range(self.num_agents):
             thread_idx = self.actor_critic_thread[p_index]
             self.train_thread[thread_idx].input_queue.put(("get_action", p_index, p_data))
@@ -424,7 +424,7 @@ class GroupActionOPTD3(object):
     def queue_critic(self):
         """ Critic Output """
         act_n_traj = [np.expand_dims(traj_p, axis=0) for traj_p in self.action_n_t]
-        q_data = (self.obs_n_t, act_n_traj, self.q1_h_n_t, self.q2_h_n_t)
+        q_data = ([self.obs_n_t], act_n_traj, self.q1_h_n_t, self.q2_h_n_t)
         for p_index in range(self.num_agents):
             thread_idx = self.actor_critic_thread[p_index]
             self.train_thread[thread_idx].input_queue.put(("get_qdebug", p_index, q_data))

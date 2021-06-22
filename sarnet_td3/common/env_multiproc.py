@@ -51,7 +51,7 @@ def mpe_pipe_worker(pipe, args, env_idx):
 
         elif action == 'get_group_shape':
             if args.env_type == "mpe":
-                group_shape_n = [env.observation_space[i].shape for i in range(env.n)]
+                group_shape_n = [env.group_space_input[i].shape for i in range(env.n)]
                 pipe.send(group_shape_n)
             else:
                 pipe.send(args.num_adversaries)
